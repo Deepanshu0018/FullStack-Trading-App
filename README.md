@@ -15,3 +15,7 @@ A full-stack trading platform clone with backend, frontend, and dashboard module
 - **Dashboard:** Custom analytics module
 
 ## 📂 Project Structure
+Zerodha-main/
+│── backend/ # Server-side code, APIs
+│── frontend/ # Client-side UI
+│── dashboard/ # Portfolio & analytics dashboard
