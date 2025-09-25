@@ -4,7 +4,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const cors = require("cors");
-const chalk = require("chalk"); // For colored terminal output
+const chalk = require("chalk");
 
 // Import models
 const { HoldingsModel } = require("./model/HoldingsModel");
@@ -12,7 +12,7 @@ const { PositionsModel } = require("./model/PositionsModel");
 const { OrdersModel } = require("./model/OrdersModel");
 
 const PORT = process.env.PORT || 3002;
-const uri = process.env.MONGO_URL;
+const MONGO_URI = process.env.MONGO_URL;
 
 const app = express();
 
@@ -20,10 +20,12 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-/**
- * Route: GET /allHoldings
- * Description: Fetch all holdings from the database
- */
+// Default root route
+app.get("/", (req, res) => {
+  res.send("Backend is running!");
+});
+
+// Route: GET /allHoldings
 app.get("/allHoldings", async (req, res) => {
   try {
     const allHoldings = await HoldingsModel.find({});
@@ -35,10 +37,7 @@ app.get("/allHoldings", async (req, res) => {
   }
 });
 
-/**
- * Route: GET /allPositions
- * Description: Fetch all positions from the database
- */
+// Route: GET /allPositions
 app.get("/allPositions", async (req, res) => {
   try {
     const allPositions = await PositionsModel.find({});
@@ -50,10 +49,7 @@ app.get("/allPositions", async (req, res) => {
   }
 });
 
-/**
- * Route: POST /newOrder
- * Description: Create a new order in the database
- */
+// Route: POST /newOrder
 app.post("/newOrder", async (req, res) => {
   try {
     const newOrder = new OrdersModel({
@@ -76,27 +72,22 @@ app.post("/newOrder", async (req, res) => {
   }
 });
 
-/**
- * Start server and connect to MongoDB
- */
-app.listen(PORT, async () => {
-  console.log(chalk.cyan.bold("\n=========================================="));
-  console.log(chalk.blue.bold(`🚀 Starting server on port ${PORT}...`));
-  console.log(chalk.cyan.bold("==========================================\n"));
-
-  try {
-    await mongoose.connect(uri);
+// Connect to MongoDB and start server
+mongoose
+  .connect(MONGO_URI)
+  .then(() => {
     console.log(chalk.green.bold("✅ MongoDB connected successfully!"));
-    console.log(
-      chalk.yellow.bold(`🌐 Server running at: http://localhost:${PORT}`)
-    );
-    console.log(
-      chalk.cyan.bold("\n==========================================\n")
-    );
-  } catch (error) {
+    app.listen(PORT, () => {
+      console.log(
+        chalk.cyan.bold("\n==========================================")
+      );
+      console.log(chalk.blue.bold(`🚀 Server running on port ${PORT}`));
+      console.log(chalk.yellow.bold(`🌐 URL: http://localhost:${PORT}`));
+      console.log(
+        chalk.cyan.bold("==========================================\n")
+      );
+    });
+  })
+  .catch((error) => {
     console.error(chalk.red.bold("❌ MongoDB connection error:"), error);
-    console.log(
-      chalk.cyan.bold("\n==========================================\n")
-    );
-  }
-});
+  });
